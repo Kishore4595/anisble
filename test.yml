@@ -1,0 +1,19 @@
+---
+- name: this is test playbook
+  hosts: all
+  become: true
+  tasks:
+          # - name: this is a yum module
+          # yum:
+          #         name: git
+
+          - name: this is a user module
+            user:
+                    name: kk
+
+          - name: this is a file module
+            file:
+                    path: /home/ansadmin/pega
+                    state: touch
+                    owner: kk
+                    mode: 0777

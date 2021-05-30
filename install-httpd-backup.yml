@@ -1,0 +1,66 @@
+---
+- name: This playbook is used to install httpd service
+  hosts: all
+  become: true
+  vars:
+          port: 8081
+  tasks:
+          - name: install httpd service on redhat
+            yum:
+                    name: ['httpd','git','wget']
+                    state: installed
+            when: ansible_os_family == "RedHat"
+            notify: start the httpd service
+
+          - name: changing the port for redhat
+            lineinfile:
+                    path: /etc/httpd/conf/httpd.conf
+                    regexp: '^Listen '
+                    insertafter: '^#Listen '
+                    line: Listen {{ port }}
+            when: ansible_os_family == "RedHat"
+            notify: restart the httpd service
+
+          - name: install httpd service on ubuntu 
+            apt:
+                    name: apache2
+                    state: present
+            when: ansible_os_family == "Debian"
+            notify: start the apache2 service
+
+          - name: changing the port for redhat
+            lineinfile:
+                    path: /etc/apache2/ports.conf
+                    regexp: '^Listen'
+                    insertafter: '# /etc/apache2/sites-enabled/000-default.conf'
+                    line: Listen {{ port }}
+            when: ansible_os_family == "Debian"
+            notify: restart the apache2 service
+
+          - name: copyt index file to the webserver
+            copy:
+                    src: /opt/ansible/index.html
+                    dest: /var/www/html/
+                    mode: 0666
+                    owner: ansadmin
+  handlers:
+          - name: start the httpd service
+            service:
+                    name: httpd
+                    state: started
+
+          - name: start the apache2 service
+            service:
+                    name: apache2
+                    state: started
+
+          - name: restart the httpd service
+            service:
+                    name: httpd
+                    state: restarted
+
+          - name: restart the apache2 service
+            service:
+                    name: apache2
+                    state: restarted
+

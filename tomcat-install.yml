@@ -1,0 +1,39 @@
+---
+- name: Installing the tomcat
+  hosts: all
+  become: true
+  tasks:
+          - name: installing java
+            yum:
+                    name: java
+                    state: installed
+            when: ansible_os_family == "RedHat"
+            tags: java_install
+          
+          - name: installing java
+            apt:
+                    name: default-jdk
+                    state: present
+            when: ansible_os_family == "Debian"
+            tags: java_install
+
+          - name: getting tomcat zip
+            get_url:
+                    url: https://mirrors.estointernet.in/apache/tomcat/tomcat-8/v8.5.66/bin/apache-tomcat-8.5.66.tar.gz
+                    dest: /home/ansadmin/
+
+          - name: unzipping my tomcat file
+            unarchive:
+                    src: /home/ansadmin/apache-tomcat-8.5.66.tar.gz
+                    dest: /home/ansadmin/
+                    remote_src: yes
+
+          - name: changing file permission
+            file:
+                    path: /home/ansadmin/apache-tomcat-8.5.66/bin/startup.sh
+                    mode: 0777
+
+          - name: starting my tomcat service
+            shell: nohup ./startup.sh
+            args:
+                 chdir: /home/ansadmin/apache-tomcat-8.5.66/bin/

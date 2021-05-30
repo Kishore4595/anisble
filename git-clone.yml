@@ -1,0 +1,11 @@
+---
+- name: clone git repo
+  hosts: all
+  become: true
+  vars_files:
+          - myfile.yml
+  tasks:
+          - name: cloning my private repo
+            git:
+                    repo: https://Kishore4595:{{ password }}@github.com/Kishore4595/ansible-valut.git
+                    dest: /home/ansadmin/
